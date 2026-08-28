@@ -1,0 +1,2 @@
+# Claude-Subagent-Plugin
+A Claude hook by mechanism that shipped as plugin to be able to have control on the subagent workflows. It shows you how many subagents will be created with their detailed information (model, task) etc. so that you can modify to not burn tokens on simple tasks by creating with the wrong model.
