@@ -1,6 +1,6 @@
 {
   "name": "claude-subagent-gate",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Control which model Claude Code subagents run on, before they spawn",
   "type": "module",
   "license": "MIT",
