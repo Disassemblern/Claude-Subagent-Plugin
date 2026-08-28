@@ -1,0 +1,6 @@
+node_modules/
+*.log
+audit.jsonl
+.DS_Store
+
+test/

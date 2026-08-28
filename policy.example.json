@@ -1,0 +1,29 @@
+{
+  "fallback": "allow",
+
+  "rules": [
+    {
+      "name": "cheap-retrieval",
+      "match": { "descriptionRegex": "(?i)\b(fetch|read|list|grep|find|search|collect|gather|locate)\b" },
+      "action": "force-model",
+      "model": "haiku"
+    },
+    {
+      "name": "short-tasks-are-not-hard",
+      "match": { "promptLengthUnder": 400 },
+      "action": "force-model",
+      "model": "haiku"
+    },
+    {
+      "name": "exploration-is-cheap",
+      "match": { "subagent_type": ["Explore", "general-purpose"], "promptLengthUnder": 1200 },
+      "action": "force-model",
+      "model": "sonnet"
+    },
+    {
+      "name": "example-confirm-expensive-work",
+      "match": { "promptLengthOver": 4000 },
+      "action": "allow"
+    }
+  ]
+}
