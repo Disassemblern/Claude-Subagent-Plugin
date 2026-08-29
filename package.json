@@ -4,12 +4,28 @@
   "description": "Control which model Claude Code subagents run on, before they spawn",
   "type": "module",
   "license": "MIT",
-  "engines": { "node": ">=18" },
-  "bin": { "subagent-gate": "./install.mjs" },
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "subagent-gate": "./install.mjs"
+  },
   "scripts": {
-    "test": "node --test",
+    "test": "node --test --test-concurrency=1",
     "hook": "node src/index.mjs"
   },
-  "files": ["src", "install.mjs", "policy.example.json", "README.md", "LICENSE"],
-  "keywords": ["claude-code", "hooks", "subagent", "cost-control", "model-routing"]
+  "files": [
+    "src",
+    "install.mjs",
+    "policy.example.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "hooks",
+    "subagent",
+    "cost-control",
+    "model-routing"
+  ]
 }

@@ -1,0 +1,19 @@
+{
+  "name": "subagent-gate",
+  "description": "Control which model Claude Code subagents run on, before they spawn. Policy-driven model rewriting with an optional approval dialog.",
+  "version": "0.2.0",
+  "author": {
+    "name": "Ataberk Seker"
+  },
+  "homepage": "https://github.com/Disassemblern/Claude-Subagent-Plugin",
+  "repository": "https://github.com/Disassemblern/Claude-Subagent-Plugin",
+  "license": "MIT",
+  "keywords": [
+    "subagent",
+    "model",
+    "cost",
+    "hooks",
+    "policy",
+    "token-savings"
+  ]
+}

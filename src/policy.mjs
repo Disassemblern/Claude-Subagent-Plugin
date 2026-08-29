@@ -118,3 +118,21 @@ export function validatePolicy(policy) {
 
   return problems;
 }
+
+// The hook's own timeout in hooks.json is 300s; if the gate waits longer than
+// that, Claude Code kills the hook mid-dialog. Clamp below it so a generous
+// promptTimeoutMs can never outlive the process that is waiting on it.
+const HOOK_TIMEOUT_CEILING_MS = 280_000;
+
+const clamp = (value, min, max) =>
+  typeof value === "number" && Number.isFinite(value)
+    ? Math.min(Math.max(value, min), max)
+    : undefined;
+
+export function brokerOptions(policy) {
+  const candidates = {
+    timeoutMs: clamp(policy?.promptTimeoutMs, 5_000, HOOK_TIMEOUT_CEILING_MS),
+    minCoalesceMs: clamp(policy?.coalesceMs, 0, 15_000),
+  };
+  return Object.fromEntries(Object.entries(candidates).filter(([, v]) => v !== undefined));
+}

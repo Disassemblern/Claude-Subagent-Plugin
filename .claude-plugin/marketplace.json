@@ -1,0 +1,19 @@
+{
+  "name": "subagent-gate",
+  "description": "Marketplace for the subagent gate plugin",
+  "owner": {
+    "name": "Ataberk Seker"
+  },
+  "plugins": [
+    {
+      "name": "subagent-gate",
+      "description": "Control which model Claude Code subagents run on, before they spawn. Policy-driven model rewriting with an optional approval dialog.",
+      "version": "0.2.0",
+      "source": "./",
+      "author": {
+        "name": "Ataberk Seker"
+      },
+      "category": "productivity"
+    }
+  ]
+}

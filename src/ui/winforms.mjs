@@ -10,7 +10,7 @@ export const available = () => process.platform === "win32";
 // Hooks have no TTY, so the dialog has to be its own window. A PowerShell
 // WinForms modal launched as a child process blocks until dismissed and hands
 // structured data back on stdout.
-export function ask(rows, { timeoutMs }) {
+export function ask(rows, { timeoutMs, rowsFile }) {
   return new Promise((resolve, reject) => {
     const child = spawn(
       "powershell.exe",
@@ -40,7 +40,7 @@ export function ask(rows, { timeoutMs }) {
     const guard = setTimeout(() => child.kill(), timeoutMs + 15_000);
     child.on("close", () => clearTimeout(guard));
 
-    child.stdin.write(JSON.stringify({ rows, timeoutMs }));
+    child.stdin.write(JSON.stringify({ rows, timeoutMs, rowsFile }));
     child.stdin.end();
   });
 }

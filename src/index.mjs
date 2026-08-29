@@ -2,7 +2,7 @@
 import { writeSync } from "node:fs";
 import { readPayload, isSpawn, describeSpawn } from "./payload.mjs";
 import { loadPolicy } from "./config.mjs";
-import { evaluate } from "./policy.mjs";
+import { evaluate, brokerOptions } from "./policy.mjs";
 import { resolveEffectiveModel } from "./effective-model.mjs";
 import { buildDecision, outcomeOf } from "./decision.mjs";
 import { record, buildEntry } from "./log.mjs";
@@ -32,8 +32,8 @@ const deny = (reason) => ({
 // Opens one dialog for the whole fan-out and turns this spawn's answer into a
 // hook decision. Falls through to the caller's static handling when no UI is
 // available, which is what keeps this usable on platforms without an adapter.
-async function runGate(spawn, effective, env) {
-  const answer = await decide({ spawn, effective, askUser, env });
+async function runGate(spawn, effective, env, policy) {
+  const answer = await decide({ spawn, effective, askUser, env, options: brokerOptions(policy) });
 
   if (answer.remember && answer.model) {
     rememberRule({ subagentType: spawn.subagentType, model: answer.model }, env);
@@ -77,7 +77,7 @@ export async function run(env = process.env) {
 
   if (verdict.action === "prompt" && uiAvailable(env)) {
     prune(env);
-    ({ decision, outcome, forcedModel } = await runGate(spawn, effective, env));
+    ({ decision, outcome, forcedModel } = await runGate(spawn, effective, env, policy));
   } else {
     decision = buildDecision(verdict, spawn, effective);
     outcome = outcomeOf(verdict, decision, effective);
