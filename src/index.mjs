@@ -2,13 +2,11 @@
 import { writeSync } from "node:fs";
 import { readPayload, isSpawn, describeSpawn } from "./payload.mjs";
 import { loadPolicy } from "./config.mjs";
-import { evaluate, brokerOptions } from "./policy.mjs";
+import { evaluate } from "./policy.mjs";
 import { resolveEffectiveModel } from "./effective-model.mjs";
 import { buildDecision, outcomeOf } from "./decision.mjs";
 import { record, buildEntry } from "./log.mjs";
-import { decide, prune } from "./broker.mjs";
-import { askUser, uiAvailable } from "./ui/index.mjs";
-import { rememberRule } from "./remember.mjs";
+import { consult } from "./approval.mjs";
 
 // writeSync, not process.stdout.write: stdout is a pipe here, async writes can
 // be truncated when the process exits, and a truncated decision is worse than
@@ -29,31 +27,27 @@ const deny = (reason) => ({
   },
 });
 
-// Opens one dialog for the whole fan-out and turns this spawn's answer into a
-// hook decision. Falls through to the caller's static handling when no UI is
-// available, which is what keeps this usable on platforms without an adapter.
-async function runGate(spawn, effective, env, policy) {
-  const answer = await decide({ spawn, effective, askUser, env, options: brokerOptions(policy) });
+// The hook learns about spawn N only as it happens, so it can never tell the
+// user how many are coming. The model knows its own fan-out before it issues a
+// single call, so it declares the plan, the user approves it in the terminal,
+// and this enforces the answer.
+function chatGate(spawn, env, policy) {
+  const result = consult(spawn, {
+    env,
+    now: Date.now(),
+    ...(typeof policy?.planMaxAgeMs === "number" ? { maxAgeMs: policy.planMaxAgeMs } : {}),
+  });
 
-  if (answer.remember && answer.model) {
-    rememberRule({ subagentType: spawn.subagentType, model: answer.model }, env);
+  if (result.outcome === "approved") {
+    return result.model
+      ? {
+          decision: allow({ ...spawn.input, model: result.model }),
+          outcome: "plan-remodelled",
+          forcedModel: result.model,
+        }
+      : { decision: null, outcome: "plan-approved", forcedModel: null };
   }
-
-  if (!answer.approved) {
-    return {
-      decision: deny("Subagent gate: you declined this spawn. Do not retry it."),
-      outcome: "gate-denied",
-      forcedModel: null,
-    };
-  }
-  if (answer.model && answer.model !== effective.model) {
-    return {
-      decision: allow({ ...spawn.input, model: answer.model }),
-      outcome: "gate-remodelled",
-      forcedModel: answer.model,
-    };
-  }
-  return { decision: null, outcome: `gate-approved:${answer.via ?? "dialog"}`, forcedModel: null };
+  return { decision: deny(result.reason), outcome: `plan-${result.outcome}`, forcedModel: null };
 }
 
 export async function run(env = process.env) {
@@ -75,9 +69,8 @@ export async function run(env = process.env) {
   let outcome;
   let forcedModel;
 
-  if (verdict.action === "prompt" && uiAvailable(env)) {
-    prune(env);
-    ({ decision, outcome, forcedModel } = await runGate(spawn, effective, env, policy));
+  if (verdict.action === "prompt") {
+    ({ decision, outcome, forcedModel } = chatGate(spawn, env, policy));
   } else {
     decision = buildDecision(verdict, spawn, effective);
     outcome = outcomeOf(verdict, decision, effective);

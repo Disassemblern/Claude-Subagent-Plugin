@@ -35,7 +35,9 @@ export function buildDecision(verdict, spawn, effective) {
       return output("allow", { updatedInput: { ...spawn.input, model: target } });
     }
 
-    case "prompt":
+    // "prompt" is handled by the chat approval flow before it reaches here.
+    // "ask" is the escape hatch: Claude Code's own yes/no prompt, no plan needed.
+    case "ask":
       return output("ask", { permissionDecisionReason: summarize(spawn, effective) });
 
     case "deny":

@@ -1,29 +1,39 @@
 {
-  "fallback": "allow",
-
-  "rules": [
+  "_readme": [
+    "Default: every subagent spawn is blocked until the model has shown you the whole",
+    "plan in the terminal (via AskUserQuestion) and you have chosen a model for each.",
+    "You see all of them before any of them runs.",
+    "",
+    "Rules run before approval and are for spawns you never want to be asked about.",
+    "Anything a rule handles is applied silently and does NOT appear in the plan, so",
+    "keep this list empty if you want to see everything. Two useful ones are in",
+    "_optionalRules below: move them into 'rules' to stop being asked about trivia.",
+    "",
+    "Actions: allow | force-model | prompt (plan approval) | ask (built-in yes/no) | deny",
+    "",
+    "Regex note: JSON needs doubled backslashes. Write \\\\b for a word boundary. A",
+    "single backslash followed by b is the backspace character, and a rule containing",
+    "it silently matches nothing. Run 'node install.mjs --check' to catch that.",
+    "",
+    "planMaxAgeMs is how long an approved plan stays valid, in milliseconds."
+  ],
+  "fallback": "prompt",
+  "planMaxAgeMs": 900000,
+  "rules": [],
+  "_optionalRules": [
     {
-      "name": "cheap-retrieval",
-      "match": { "descriptionRegex": "(?i)\b(fetch|read|list|grep|find|search|collect|gather|locate)\b" },
+      "name": "trivial-tasks",
+      "note": "Observed trivial spawns ran 68-163 chars; real research started around 490.",
+      "match": { "promptLengthUnder": 250 },
       "action": "force-model",
       "model": "haiku"
     },
     {
-      "name": "short-tasks-are-not-hard",
-      "match": { "promptLengthUnder": 400 },
+      "name": "search-shaped-agents",
+      "note": "Explore exists to grep and locate. It rarely needs a frontier model.",
+      "match": { "subagent_type": ["Explore"] },
       "action": "force-model",
       "model": "haiku"
-    },
-    {
-      "name": "exploration-is-cheap",
-      "match": { "subagent_type": ["Explore", "general-purpose"], "promptLengthUnder": 1200 },
-      "action": "force-model",
-      "model": "sonnet"
-    },
-    {
-      "name": "example-confirm-expensive-work",
-      "match": { "promptLengthOver": 4000 },
-      "action": "allow"
     }
   ]
 }
