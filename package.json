@@ -8,7 +8,7 @@
     "node": ">=18"
   },
   "bin": {
-    "subagent-gate": "./install.mjs"
+    "subagent-gate": "./bin/subagent-gate.mjs"
   },
   "scripts": {
     "test": "node --test --test-concurrency=1",
@@ -16,7 +16,10 @@
   },
   "files": [
     "src",
-    "install.mjs",
+    "bin",
+    "hooks",
+    ".claude-plugin",
+    "skills",
     "policy.example.json",
     "README.md",
     "LICENSE"
