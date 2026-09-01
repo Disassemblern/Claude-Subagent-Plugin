@@ -13,7 +13,7 @@
     "",
     "Regex note: JSON needs doubled backslashes. Write \\\\b for a word boundary. A",
     "single backslash followed by b is the backspace character, and a rule containing",
-    "it silently matches nothing. Run 'node install.mjs --check' to catch that.",
+    "it silently matches nothing. Run 'node bin/subagent-gate.mjs check' to catch that.",
     "",
     "planMaxAgeMs is how long an approved plan stays valid, in milliseconds."
   ],

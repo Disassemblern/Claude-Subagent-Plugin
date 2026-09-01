@@ -61,7 +61,7 @@ export async function run(env = process.env) {
   if (!isSpawn(payload)) return null;
 
   const spawn = describeSpawn(payload);
-  const { policy, source, error } = loadPolicy(env);
+  const { policy, source, error, seeded } = loadPolicy(env);
   const effective = resolveEffectiveModel(spawn, env);
   const verdict = evaluate(policy, spawn);
 
@@ -81,6 +81,7 @@ export async function run(env = process.env) {
     {
       ...buildEntry({ spawn, effective, verdict, outcome, forcedModel, policySource: source }),
       ...(error ? { policy_error: error } : {}),
+      ...(seeded ? { policy_seeded: true } : {}),
     },
     env,
   );
