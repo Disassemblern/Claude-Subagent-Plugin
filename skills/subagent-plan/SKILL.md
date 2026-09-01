@@ -35,15 +35,38 @@ For each agent:
   Include the size signal — a small lookup and a deep research task deserve
   different answers, and the user cannot tell them apart from a label alone.
 - `header`: a short tag, 12 characters max, e.g. "QUIC" or "Reply ALPHA".
-- `options`: the models worth considering for THAT agent, cheapest first, each
-  with a one-line description of the tradeoff. Four is the maximum, so choose
-  the four that actually make sense — usually `haiku`, `sonnet`, `opus`, and
-  `skip` (do not run this agent at all). The user can always type their own
-  answer, so do not spend an option slot on something unlikely.
+- `options`: 2-4 models worth considering for THAT agent, each with a one-line
+  description of the tradeoff. Four is a hard cap, so pick the set per agent
+  rather than always offering the same four.
 
-Put the cheapest sensible model first: it is the default the user is most
-likely to want for a small task, and this whole gate exists to avoid paying
-frontier prices for trivial work.
+Choose from `haiku`, `sonnet`, `opus`, `fable`, `inherit` and `skip`:
+
+- A small agent (a grep, a count, a short lookup): `haiku`, `sonnet`, `opus`,
+  `skip`.
+- A large or open-ended agent: `sonnet`, `opus`, `fable`, `skip`. Offering
+  `haiku` for deep research spends a slot on an answer nobody will pick.
+- `skip` earns its slot nearly always. It is the only way to call an agent off,
+  and the gate enforces it by denying that spawn.
+- `inherit` means "run on whatever the main conversation runs on". Offer it
+  only when the subagent genuinely needs parity with the parent. It is the
+  silent expensive default this gate exists to make visible, so it is rarely
+  the right answer.
+
+The user can always type an answer through "Other", so a model left off the
+list is still reachable. Never spend a slot on an option nobody will choose.
+
+**Put your recommendation first and mark it.** Label it `haiku (Recommended)`
+and order the rest after it. You have read the task and the user has not, so
+you are better placed to size it: making your pick the first option means
+accepting it is one keypress, while overriding it stays exactly as easy. That
+is how the user hands you the choice without giving up sight of it.
+
+Bias the recommendation cheap. When two models would both do the job, name the
+smaller one — this gate exists because subagents silently inherit a frontier
+model for work that never needed one.
+
+A recommendation is not a preset. Every agent still gets its own question and
+its own answer; do not collapse them back into one bundled choice.
 
 **3. Write the approved plan.** Save to the path the gate names in its denial
 message — by default `~/.claude/subagent-gate/approved-plan.json`:
